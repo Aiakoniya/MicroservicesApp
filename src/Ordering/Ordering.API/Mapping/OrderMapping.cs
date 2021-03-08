@@ -1,19 +1,18 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Ordering.API.DTOs;
+using Ordering.Core.Entitites;
+using EventBusRabbitMQ.Entities;
 
 namespace Ordering.API.Mapping
 {
-   
-        public OrderMapping() {
-
-            public OrderMapping()
-            {
-                throw new NotImplementedException();
-            }
+    public class OrderMapping : Profile
+    {
+        public OrderMapping()
+        {
+            CreateMap<BasketCheckoutEvent, Order>().ReverseMap();
+            CreateMap<Order, OrderResponse>().ReverseMap();
         }
-    } 
+    }
+} 
     
 

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using EventBusRabbitMQ;
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Generic;

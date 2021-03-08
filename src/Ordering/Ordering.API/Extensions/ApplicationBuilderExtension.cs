@@ -1,36 +1,33 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Ordering.API.RabbitMQ;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Ordering.API.Extensions
 {
-    public class ApplicationBuilderExtension
+    public static class ApplicationBuilderExtention
     {
-            public static EventBusRabbitMQConsumer Listener { get; set; }
+        public static EventBusRabbitMQConsumer Listener { get; set; }
 
-            public static IApplicationBuilder UseRabbitListener(this IApplicationBuilder app)
-            {
-                Listener = app.ApplicationServices.GetService<EventBusRabbitMQConsumer>();
-                var life = app.ApplicationServices.GetService<IHostApplicationLifetime>();
+        public static IApplicationBuilder UseRabbitListener(this IApplicationBuilder app)
+        {
+            Listener = app.ApplicationServices.GetService<EventBusRabbitMQConsumer>();
+            var life = app.ApplicationServices.GetService<IHostApplicationLifetime>();
 
-                life.ApplicationStarted.Register(OnStarted);
-                life.ApplicationStopping.Register(OnStopping);
+            life.ApplicationStarted.Register(OnStarted);
+            life.ApplicationStopping.Register(OnStopping);
 
-                return app;
-            }
+            return app;
+        }
 
-            private static void OnStarted()
-            {
-                Listener.Consume();
-            }
+        private static void OnStarted()
+        {
+            Listener.Consume();
+        }
 
-            private static void OnStopping()
-            {
-                Listener.Disconnect();
-            }
-        
+        private static void OnStopping()
+        {
+            Listener.Disconnect();
+        }
     }
 }

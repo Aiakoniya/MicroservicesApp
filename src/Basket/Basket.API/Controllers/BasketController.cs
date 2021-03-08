@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
 using Basket.API.Entities;
 using Basket.API.Repositories.Interfaces;
+using EventBusRabbitMQ.Producer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
 using System.Threading.Tasks;
 
-
-//Teacher the reference to the EventBusRabbitMQ is logged almost one day, I don't know why
 
 namespace Basket.API.Controllers
 {
@@ -21,7 +20,7 @@ namespace Basket.API.Controllers
         private readonly ILogger<BasketController> _logger;
         private readonly IMapper _mapper;
 
-        
+
         public BasketController(IBasketRepository repository, ILogger<BasketController> logger, EventBusRabbitMQProducer eventBus, IMapper mapper)
         {
             _repository = repository;
@@ -39,22 +38,21 @@ namespace Basket.API.Controllers
         }
 
         [HttpPost]
-       [ProducesResponseType(typeof(BasketCart), (int)HttpStatusCode.OK)]
-       public async Task<ActionResult<BasketCart>> UpdateBasket([FromBody] BasketCart basket)
+        [ProducesResponseType(typeof(BasketCart), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<BasketCart>> UpdateBasket([FromBody] BasketCart basket)
         {
             return Ok(await _repository.UpdateBasket(basket));
         }
 
         [HttpDelete("{username}")]
-        [ProducesResponseType(typeof(void),(int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> DeleteBasket(string username)
         {
             return Ok(await _repository.DeleteBasket(username));
         }
 
-    }
 
-    [Route("[action]")]
+        [Route("[action]")]
         [HttpPost]
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.BadRequest)]
@@ -82,11 +80,13 @@ namespace Basket.API.Controllers
                 _eventBus.PublishBasketCheckout(EventBusConstants.BasketCheckoutQueue, eventMessage);
             } catch (Exception e)
             {
-                _logger.LogError("Error: Message cannot be published for user: " + basketCheckout.Username + ", " + e.Message);
+                _logger.LogError("Error: Message cannot be published for user: " + basketCheckout.Username + "," + e.Message);
                 throw;
             }
-
+            
             return Accepted();
         }
+
     }
 }
+
